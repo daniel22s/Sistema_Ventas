@@ -27,7 +27,7 @@ class Manager(Tk):
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")  # apilamos los frames
         
-        self.show_frame(Login)
+        self.show_frame(Container)
         
         self.style = ttk.Style()
         self.style.theme_use('clam')
