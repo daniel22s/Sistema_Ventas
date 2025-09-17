@@ -1,31 +1,42 @@
 # login.py
+import sys, os
+import sqlite3
 from tkinter import *
 from tkinter import messagebox
 import tkinter as tk
 from PIL import Image, ImageTk
-import sqlite3
 from container import Container  # tu ventana principal
+
+# -------------------- FUNCION PARA RUTAS EN PyInstaller --------------------
+def resource_path(relative_path):
+    """ Devuelve la ruta absoluta de un recurso, compatible con PyInstaller """
+    try:
+        base_path = sys._MEIPASS  # Carpeta temporal usada por PyInstaller
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 # -------------------- LOGIN --------------------
 class Login(tk.Frame):
     def __init__(self, padre, controlador):
         super().__init__(padre)
-        self.pack()
-        self.place(x=0, y=0, width=1100, height=650)
         self.controlador = controlador
+        self.place(x=0, y=0, width=1100, height=650)
         self.widgets()
 
     def widgets(self):
+        # Fondo
         fondo = Frame(self, bg="#232327")
-        fondo.pack(fill="both", expand=True)
         fondo.place(x=0, y=0, width=1100, height=650)
 
-        self.bg_img = Image.open("img/login.jpg")
-        self.bg_img = self.bg_img.resize((1100, 650), Image.LANCZOS)
-        self.bg_img = ImageTk.PhotoImage(self.bg_img)
+        # Imagen de fondo
+        img = Image.open(resource_path("img/login.jpg"))
+        img = img.resize((1100, 650), Image.LANCZOS)
+        self.bg_img = ImageTk.PhotoImage(img)
         self.bg_label = Label(fondo, image=self.bg_img)
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
+        # Frame del formulario
         frame1 = Frame(fondo, bg="#232327", bd=5)
         frame1.place(x=350, y=150, width=400, height=350)
 
@@ -50,9 +61,16 @@ class Login(tk.Frame):
         usuario = self.username.get()
         clave = self.password.get()
 
+        if not usuario or not clave:
+            messagebox.showwarning("Atención", "Debes ingresar usuario y contraseña")
+            return
+
         con = sqlite3.connect("usuarios.db")
         cur = con.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario TEXT UNIQUE, clave TEXT)")
+        cur.execute("""CREATE TABLE IF NOT EXISTS usuarios (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        usuario TEXT UNIQUE,
+                        clave TEXT)""")
 
         cur.execute("SELECT * FROM usuarios WHERE usuario=? AND clave=?", (usuario, clave))
         user = cur.fetchone()
@@ -64,6 +82,7 @@ class Login(tk.Frame):
         else:
             messagebox.showerror("Error", "Usuario o contraseña incorrectos")
 
+
 # -------------------- REGISTRO --------------------
 class Registro(tk.Frame):
     ADMIN_CODE = "SENATI123"  # Código secreto del admin
@@ -71,19 +90,21 @@ class Registro(tk.Frame):
     def __init__(self, padre, controlador):
         super().__init__(padre)
         self.controlador = controlador
+        self.place(x=0, y=0, width=1100, height=650)
         self.widgets()
 
     def widgets(self):
         fondo = Frame(self, bg="#232327")
-        fondo.pack(fill="both", expand=True)
         fondo.place(x=0, y=0, width=1100, height=650)
 
-        self.bg_img = Image.open("img/login.jpg")
-        self.bg_img = self.bg_img.resize((1100, 650), Image.LANCZOS)
-        self.bg_img = ImageTk.PhotoImage(self.bg_img)
+        # Imagen de fondo
+        img = Image.open(resource_path("img/login.jpg"))
+        img = img.resize((1100, 650), Image.LANCZOS)
+        self.bg_img = ImageTk.PhotoImage(img)
         self.bg_label = Label(fondo, image=self.bg_img)
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
+        # Frame de registro
         frame1 = Frame(fondo, bg="#232327", bd=5)
         frame1.place(x=350, y=150, width=400, height=400)
 
@@ -123,7 +144,10 @@ class Registro(tk.Frame):
 
         con = sqlite3.connect("usuarios.db")
         cur = con.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario TEXT UNIQUE, clave TEXT)")
+        cur.execute("""CREATE TABLE IF NOT EXISTS usuarios (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        usuario TEXT UNIQUE,
+                        clave TEXT)""")
 
         try:
             cur.execute("INSERT INTO usuarios (usuario, clave) VALUES (?, ?)", (usuario, clave))
