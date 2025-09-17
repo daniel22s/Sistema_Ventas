@@ -17,24 +17,21 @@ class Manager(Tk):
         container.pack(side="top", fill="both", expand=True)
         container.configure(bg="#f0f0f0")
         
+        # Configuración de la grilla para que los frames se ajusten
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+        
         self.frames = {}
-        for i in (Login ,Registro,Container):
-            frame = i(container, self)
-            self.frames[i] = frame
-
+        for F in (Login, Registro, Container):
+            frame = F(container, self)  # instanciamos la clase
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")  # apilamos los frames
+        
         self.show_frame(Login)
         
         self.style = ttk.Style()
         self.style.theme_use('clam')
         
-    
-    def show_frame(self, container):
-        frame = self.frames[container]
+    def show_frame(self, cont):
+        frame = self.frames[cont]
         frame.tkraise()
-        
-def main():
-    app = Manager()
-    app.mainloop()
-
-if __name__ == "__main__":
-    main()
